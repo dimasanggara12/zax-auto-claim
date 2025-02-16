@@ -103,6 +103,9 @@ def main():
         print(f"{Fore.RED}❌ File 'proxies.txt' not found.{Style.RESET_ALL}")
         return
 
+    # Set untuk menyimpan IP proxy yang sudah digunakan
+    used_ips = set()
+
     # Loop untuk mengclaim semua wallet
     for wallet in wallets:
         # Garis pembatas berwarna biru cerah
@@ -119,8 +122,18 @@ def main():
             public_ip = get_public_ip(proxy)
 
             if public_ip:
+                # Periksa apakah IP proxy sudah digunakan sebelumnya
+                if public_ip in used_ips:
+                    print(f"{Fore.YELLOW}⚠️ Proxy {proxy} with IP {public_ip} has already been used. Skipping...{Style.RESET_ALL}")
+                    proxy_index += 1
+                    continue
+
                 print(f"{Fore.GREEN}✅ Found active proxy: {proxy} with IP {public_ip}{Style.RESET_ALL}")
                 claimed = claim(wallet, public_ip, proxy)
+
+                # Jika claim berhasil atau diasumsikan berhasil, tambahkan IP ke used_ips
+                if claimed:
+                    used_ips.add(public_ip)
             else:
                 inactive_proxies.append(proxy)  # Catat proxy yang tidak aktif
 
